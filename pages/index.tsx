@@ -1,28 +1,36 @@
-import type { NextPage } from 'next'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { GetServerSideProps, NextPage } from 'next/types'
 import { SEO } from 'src/components'
 
-const Home: NextPage = () => {
+export const getServerSideProps: GetServerSideProps = async () => {
+  const { results } = await (
+    await fetch(`http://localhost:3000/api/movies`)
+  ).json()
+
+  const test = [1, 2, 3]
+
+  return {
+    props: {
+      results,
+      test,
+    },
+  }
+}
+
+interface SSRProps {
+  results: any
+  test: number[]
+}
+
+const Home: NextPage<SSRProps> = ({ results, test }) => {
   // (async () => {
   //   const response = await (await fetch(`fdfdfdfadf`)).json()
   // })()
-
-  const [movies, setMovies] = useState([])
-
-  useEffect(() => {
-    ;(async () => {
-      const { results } = await (await fetch(`/api/movies`)).json()
-
-      setMovies(results)
-    })()
-  }, [])
-
+  console.log(results)
+  console.log(test)
   return (
     <div className='container'>
       <SEO title='Home' />
-      {!movies && <h4>Loading...</h4>}
-      {movies?.map((movie: any) => (
+      {results.map((movie: any) => (
         <div className='movie' key={movie.id}>
           <img src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`} />
           <h4>{movie.original_title}</h4>
